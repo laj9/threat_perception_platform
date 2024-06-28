@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tpp.threat_perception_platform.dao.LogMapper">
+
+    <resultMap id="BaseResultMap" type="com.tpp.threat_perception_platform.pojo.Log">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="eventId" column="event_id" jdbcType="VARCHAR"/>
+        <result property="timestamp" column="timestamp" jdbcType="VARCHAR"/>
+        <result property="mac" column="mac" jdbcType="VARCHAR"/>
+        <result property="eventName" column="event_name" jdbcType="VARCHAR"/>
+        <result property="eventDesc" column="event_desc" jdbcType="VARCHAR"/>
+        <result property="extraInfo" column="extra_info" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,event_id,timestamp,
+        mac,event_name,event_desc,
+        extra_info
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from log
+        where  id = #{id,jdbcType=INTEGER}
+    </select>
+    <select id="selectAll" resultType="com.tpp.threat_perception_platform.pojo.Log">
+        select
+        id, timestamp, event_id, event_name, event_desc, extra_info
+        <include refid="Base_Column_List" />
+        from log
+        <where>
+            <if test="keywords != null">
+                and mac like concat('%',#{keywords,jdbcType=VARCHAR},'%') or event_name like concat('%',#{keywords,jdbcType=VARCHAR},'%')
+                or event_desc like concat('%',#{keywords,jdbcType=VARCHAR},'%') or event_id like concat('%',#{keywords,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="start != null and start != '' and end != null and end != ''">
+                and timestamp between #{start} and #{end}
+            </if>
+        </where>
+    </select>
+    <select id="selectLoginLog" resultType="com.tpp.threat_perception_platform.pojo.Log">
+        select
+        id, timestamp, event_id, event_name, event_desc, extra_info
+        <include refid="Base_Column_List" />
+        from log
+        <where>
+            and event_id = '4624' or event_id = '4625'
+            <if test="keywords != null">
+                and mac like concat('%',#{keywords,jdbcType=VARCHAR},'%') or event_name like concat('%',#{keywords,jdbcType=VARCHAR},'%')
+                or event_desc like concat('%',#{keywords,jdbcType=VARCHAR},'%') or
+                event_id like concat('%',#{keywords,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="start != null and start != '' and end != null and end != ''">
+                and timestamp between #{start} and #{end}
+            </if>
+        </where>
+    </select>
+    <select id="selectAccountLog" resultType="com.tpp.threat_perception_platform.pojo.Log">
+        select
+        id, timestamp, event_id, event_name, event_desc, extra_info
+        <include refid="Base_Column_List" />
+        from log
+        <where>
+            and event_id = '4720' or event_id = '4722' or event_id = '4723' or event_id = '4728' or event_id = '4738'
+            <if test="keywords != null">
+                and mac like concat('%',#{keywords,jdbcType=VARCHAR},'%') or event_name like concat('%',#{keywords,jdbcType=VARCHAR},'%')
+                or event_desc like concat('%',#{keywords,jdbcType=VARCHAR},'%') or
+                event_id like concat('%',#{keywords,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="start != null and start != '' and end != null and end != ''">
+                and timestamp between #{start} and #{end}
+            </if>
+        </where>
+    </select>
+    <select id="select" resultType="com.tpp.threat_perception_platform.pojo.Log">
+        select
+        <include refid="Base_Column_List" />
+        from log
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id,jdbcType=INTEGER}
+        </foreach>
+    </select>
+    <select id="findAll" resultType="com.tpp.threat_perception_platform.pojo.Log">
+        select
+        <include refid="Base_Column_List" />
+        from log
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from log
+        where  id = #{id,jdbcType=INTEGER}
+    </delete>
+    <delete id="delete">
+        delete from log
+        where  id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id,jdbcType=INTEGER}
+        </foreach>
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.tpp.threat_perception_platform.pojo.Log" useGeneratedKeys="true">
+        insert into log
+        ( id,event_id,timestamp
+        ,mac,event_name,event_desc
+        ,extra_info)
+        values (#{id,jdbcType=INTEGER},#{eventId,jdbcType=VARCHAR},#{timestamp,jdbcType=VARCHAR}
+               ,#{mac,jdbcType=VARCHAR},#{eventName,jdbcType=VARCHAR},#{eventDesc,jdbcType=VARCHAR}
+               ,#{extraInfo,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.tpp.threat_perception_platform.pojo.Log" useGeneratedKeys="true">
+        insert into log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="eventId != null">event_id,</if>
+            <if test="timestamp != null">timestamp,</if>
+            <if test="mac != null">mac,</if>
+            <if test="eventName != null">event_name,</if>
+            <if test="eventDesc != null">event_desc,</if>
+            <if test="extraInfo != null">extra_info,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id,jdbcType=INTEGER},</if>
+            <if test="eventId != null">#{eventId,jdbcType=VARCHAR},</if>
+            <if test="timestamp != null">#{timestamp,jdbcType=VARCHAR},</if>
+            <if test="mac != null">#{mac,jdbcType=VARCHAR},</if>
+            <if test="eventName != null">#{eventName,jdbcType=VARCHAR},</if>
+            <if test="eventDesc != null">#{eventDesc,jdbcType=VARCHAR},</if>
+            <if test="extraInfo != null">#{extraInfo,jdbcType=VARCHAR},</if>
+        </trim>
+    </insert>
+    <insert id="insertBatch">
+        insert into log
+        values
+        <foreach collection="logs" item="log" separator=",">
+            (
+            null,
+            #{eventId,jdbcType=VARCHAR},
+            #{timestamp,jdbcType=VARCHAR},
+            #{mac,jdbcType=VARCHAR},
+            #{eventName,jdbcType=VARCHAR},
+            #{eventDesc,jdbcType=VARCHAR},
+            #{extraInfo,jdbcType=VARCHAR}
+            )
+        </foreach>
+    </insert>
+
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.tpp.threat_perception_platform.pojo.Log">
+        update log
+        <set>
+            <if test="eventId != null">
+                event_id = #{eventId,jdbcType=VARCHAR},
+            </if>
+            <if test="timestamp != null">
+                timestamp = #{timestamp,jdbcType=VARCHAR},
+            </if>
+            <if test="mac != null">
+                mac = #{mac,jdbcType=VARCHAR},
+            </if>
+            <if test="eventName != null">
+                event_name = #{eventName,jdbcType=VARCHAR},
+            </if>
+            <if test="eventDesc != null">
+                event_desc = #{eventDesc,jdbcType=VARCHAR},
+            </if>
+            <if test="extraInfo != null">
+                extra_info = #{extraInfo,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where   id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.tpp.threat_perception_platform.pojo.Log">
+        update log
+        set
+            event_id =  #{eventId,jdbcType=VARCHAR},
+            timestamp =  #{timestamp,jdbcType=VARCHAR},
+            mac =  #{mac,jdbcType=VARCHAR},
+            event_name =  #{eventName,jdbcType=VARCHAR},
+            event_desc =  #{eventDesc,jdbcType=VARCHAR},
+            extra_info =  #{extraInfo,jdbcType=VARCHAR}
+        where   id = #{id,jdbcType=INTEGER}
+    </update>
+</mapper>

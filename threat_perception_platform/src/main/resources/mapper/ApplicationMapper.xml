@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tpp.threat_perception_platform.dao.ApplicationMapper">
+
+    <resultMap id="BaseResultMap" type="com.tpp.threat_perception_platform.pojo.Application">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="mac" column="mac" jdbcType="VARCHAR"/>
+            <result property="displayName" column="display_name" jdbcType="VARCHAR"/>
+            <result property="installLocation" column="install_location" jdbcType="VARCHAR"/>
+            <result property="uninstallString" column="uninstall_string" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,mac,display_name,
+        install_location,uninstall_string
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from application
+        where  id = #{id,jdbcType=INTEGER} 
+    </select>
+    <select id="selectAll" resultType="com.tpp.threat_perception_platform.pojo.Application">
+        select
+        <include refid="Base_Column_List" />
+        from application
+        <where>
+            <if test="keywords != null">
+                and mac like concat('%',#{keywords},'%')
+            </if>
+        </where>
+        order by id asc
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from application
+        where  id = #{id,jdbcType=INTEGER} 
+    </delete>
+    <delete id="deleteByMac">
+        delete from application
+        where  mac = #{mac,jdbcType=VARCHAR}
+    </delete>
+    <delete id="delete">
+        delete from application
+        where  id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.tpp.threat_perception_platform.pojo.Application" useGeneratedKeys="true">
+        insert into application
+        ( id,mac,display_name
+        ,install_location,uninstall_string)
+        values (#{id,jdbcType=INTEGER},#{mac,jdbcType=VARCHAR},#{displayName,jdbcType=VARCHAR}
+        ,#{installLocation,jdbcType=VARCHAR},#{uninstallString,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.tpp.threat_perception_platform.pojo.Application" useGeneratedKeys="true">
+        insert into application
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="mac != null">mac,</if>
+                <if test="displayName != null">display_name,</if>
+                <if test="installLocation != null">install_location,</if>
+                <if test="uninstallString != null">uninstall_string,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id,jdbcType=INTEGER},</if>
+                <if test="mac != null">#{mac,jdbcType=VARCHAR},</if>
+                <if test="displayName != null">#{displayName,jdbcType=VARCHAR},</if>
+                <if test="installLocation != null">#{installLocation,jdbcType=VARCHAR},</if>
+                <if test="uninstallString != null">#{uninstallString,jdbcType=VARCHAR},</if>
+        </trim>
+    </insert>
+    <insert id="insertBatch">
+        insert into application
+        values
+        <trim suffixOverrides=",">
+            <foreach collection="applications" item="application" separator=",">
+                (
+                 #{application.id,jdbcType=INTEGER},
+                 #{application.mac,jdbcType=VARCHAR},
+                 #{application.displayName,jdbcType=VARCHAR},
+                 #{application.installLocation,jdbcType=VARCHAR},
+                 #{application.uninstallString,jdbcType=VARCHAR}
+                )
+            </foreach>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.tpp.threat_perception_platform.pojo.Application">
+        update application
+        <set>
+                <if test="mac != null">
+                    mac = #{mac,jdbcType=VARCHAR},
+                </if>
+                <if test="displayName != null">
+                    display_name = #{displayName,jdbcType=VARCHAR},
+                </if>
+                <if test="installLocation != null">
+                    install_location = #{installLocation,jdbcType=VARCHAR},
+                </if>
+                <if test="uninstallString != null">
+                    uninstall_string = #{uninstallString,jdbcType=VARCHAR},
+                </if>
+        </set>
+        where   id = #{id,jdbcType=INTEGER} 
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.tpp.threat_perception_platform.pojo.Application">
+        update application
+        set 
+            mac =  #{mac,jdbcType=VARCHAR},
+            display_name =  #{displayName,jdbcType=VARCHAR},
+            install_location =  #{installLocation,jdbcType=VARCHAR},
+            uninstall_string =  #{uninstallString,jdbcType=VARCHAR}
+        where   id = #{id,jdbcType=INTEGER} 
+    </update>
+</mapper>

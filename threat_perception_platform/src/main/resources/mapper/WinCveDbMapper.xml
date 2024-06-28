@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tpp.threat_perception_platform.dao.WinCveDbMapper">
+
+    <resultMap id="BaseResultMap" type="com.tpp.threat_perception_platform.pojo.WinCveDb">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <id property="dt" column="dt" jdbcType="CHAR"/>
+            <result property="cve" column="cve" jdbcType="CHAR"/>
+            <result property="score" column="score" jdbcType="CHAR"/>
+            <result property="productIdList" column="product_id_list" jdbcType="VARCHAR"/>
+            <result property="kbList" column="kb_list" jdbcType="VARCHAR"/>
+            <result property="cvrfId" column="cvrf_id" jdbcType="CHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,dt,cve,
+        score,product_id_list,kb_list,
+        cvrf_id
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from win_cve_db
+        where  id = #{id,jdbcType=BIGINT} AND dt = #{dt,jdbcType=CHAR} 
+    </select>
+    <select id="selectByKbId" resultType="com.tpp.threat_perception_platform.pojo.WinCveDb">
+        select cve
+        from win_cve_db
+        where  kb_list like concat('%',#{kbId},'%')
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from win_cve_db
+        where  id = #{id,jdbcType=BIGINT} AND dt = #{dt,jdbcType=CHAR} 
+    </delete>
+    <insert id="insert">
+        insert into win_cve_db
+        ( id,dt,cve
+        ,score,product_id_list,kb_list
+        ,cvrf_id)
+        values (#{id,jdbcType=BIGINT},#{dt,jdbcType=CHAR},#{cve,jdbcType=CHAR}
+        ,#{score,jdbcType=CHAR},#{productIdList,jdbcType=VARCHAR},#{kbList,jdbcType=VARCHAR}
+        ,#{cvrfId,jdbcType=CHAR})
+    </insert>
+    <insert id="insertSelective">
+        insert into win_cve_db
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="dt != null">dt,</if>
+                <if test="cve != null">cve,</if>
+                <if test="score != null">score,</if>
+                <if test="productIdList != null">product_id_list,</if>
+                <if test="kbList != null">kb_list,</if>
+                <if test="cvrfId != null">cvrf_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id,jdbcType=BIGINT},</if>
+                <if test="dt != null">#{dt,jdbcType=CHAR},</if>
+                <if test="cve != null">#{cve,jdbcType=CHAR},</if>
+                <if test="score != null">#{score,jdbcType=CHAR},</if>
+                <if test="productIdList != null">#{productIdList,jdbcType=VARCHAR},</if>
+                <if test="kbList != null">#{kbList,jdbcType=VARCHAR},</if>
+                <if test="cvrfId != null">#{cvrfId,jdbcType=CHAR},</if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.tpp.threat_perception_platform.pojo.WinCveDb">
+        update win_cve_db
+        <set>
+                <if test="cve != null">
+                    cve = #{cve,jdbcType=CHAR},
+                </if>
+                <if test="score != null">
+                    score = #{score,jdbcType=CHAR},
+                </if>
+                <if test="productIdList != null">
+                    product_id_list = #{productIdList,jdbcType=VARCHAR},
+                </if>
+                <if test="kbList != null">
+                    kb_list = #{kbList,jdbcType=VARCHAR},
+                </if>
+                <if test="cvrfId != null">
+                    cvrf_id = #{cvrfId,jdbcType=CHAR},
+                </if>
+        </set>
+        where   id = #{id,jdbcType=BIGINT} AND dt = #{dt,jdbcType=CHAR} 
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.tpp.threat_perception_platform.pojo.WinCveDb">
+        update win_cve_db
+        set 
+            cve =  #{cve,jdbcType=CHAR},
+            score =  #{score,jdbcType=CHAR},
+            product_id_list =  #{productIdList,jdbcType=VARCHAR},
+            kb_list =  #{kbList,jdbcType=VARCHAR},
+            cvrf_id =  #{cvrfId,jdbcType=CHAR}
+        where   id = #{id,jdbcType=BIGINT} AND dt = #{dt,jdbcType=CHAR} 
+    </update>
+</mapper>

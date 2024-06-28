@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<title>登录</title>
+	<link rel="stylesheet" type="text/css" href="/css/index.css" />
+	<script src="/js/jquery-3.7.1.min.js"></script>
+	<script src="/lib/layui/layui.js"></script>
+</head>
+
+<body>
+
+<img class="bgone" src="/img/1.jpg" />
+<img class="pic" src="/img/a.png" />
+
+<div class="table">
+	<div class="wel">四川大学威胁感知平台</div>
+	<div class="wel1">SICHUAN UNIVERSITY THREAT PERCEPTION PLATFORM</div>
+	<div class="user">
+		<div style=""><img src="/img/yhm.png" style="width:55px" /></div>
+		<input type="text" name="" placeholder="用户名" id="username"/>
+	</div>			
+	<div class="password">
+		<div><img src="/img/mm.png" style="width:55px"/></div>
+		<input type="password" name="密码" placeholder="●●●●●●" id="password"/>
+	</div>
+	<input class="btn" type="button" name="登录" value="登录" id="loginButton" style="cursor: pointer"/>
+</div>
+
+</body>
+<script>
+
+	layui.use('layer', function(){
+		var layer = layui.layer;
+		$("#loginButton").click(function () {
+			let username = $("#username").val();
+			let password = $("#password").val();
+			$.ajax({
+				url:"/user/login",           // 请求路径
+				type:"post",                  // 请求的方式，不区分大小写
+				cache:false,                  // 关闭缓存，目的是为了避免部分浏览器缓存加载出错(IE)
+				contentType:"application/json;charset=utf-8",
+				data: JSON.stringify({
+					userName:username,
+					userPwd:password
+				}),
+				datatype:"json",        // 返回类型，text文本、html页面、json数据
+				success:function(response){
+					console.log("返回: " + JSON.stringify(response));
+					if(response.code === 200) {
+						layer.msg("登录成功, 欢迎您！ " + username, {icon: 6}, function (){
+							// 保存用户名
+							localStorage.setItem("username", username);
+							// 保存token
+							localStorage.setItem("token", response.data.token);
+							// 保存refreshToken
+							localStorage.setItem("refreshToken", response.data.refreshToken);
+							// 重定向到主页
+							window.location.href = "/page/index";
+						});
+
+					}else {
+						layer.msg(response.msg , {icon: 5})
+					}
+				},
+				error:function(response){
+					console.log("出错返回: " + response);
+				}
+			});
+		});
+	})
+
+</script>
+</html>

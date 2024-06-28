@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tpp.threat_perception_platform.dao.PermissionMapper">
+
+    <resultMap id="BaseResultMap" type="com.tpp.threat_perception_platform.pojo.Permission">
+            <id property="permId" column="perm_id" jdbcType="INTEGER"/>
+            <result property="permName" column="perm_name" jdbcType="VARCHAR"/>
+            <result property="permDesc" column="perm_desc" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        perm_id,perm_name,perm_desc,
+        create_time,update_time
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from permission
+        where  perm_id = #{permId,jdbcType=INTEGER} 
+    </select>
+    <select id="selectByPermName" resultType="com.tpp.threat_perception_platform.pojo.Permission">
+        select
+        <include refid="Base_Column_List" />
+        from permission
+        where  perm_name = #{permName,jdbcType=VARCHAR}
+    </select>
+    <select id="findAll" resultType="com.tpp.threat_perception_platform.pojo.Permission">
+        select
+        <include refid="Base_Column_List" />
+        from permission
+        <where>
+            <if test="param.keywords != null and param.keywords != ''">
+                and perm_name like concat('%',#{param.keywords},'%')
+            </if>
+            <if test="param.id != 0 and param.id != null">
+                and perm_id=#{param.id}
+            </if>
+            <if test="param.start != null and param.start !=''">
+                and create_time &gt;= #{param.start}
+            </if>
+            <if test="param.end != null and param.end !=''">
+                and create_time &lt;= #{param.end}
+            </if>
+        </where>
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from permission
+        where  perm_id = #{permId,jdbcType=INTEGER} 
+    </delete>
+    <delete id="delete">
+        delete from permission
+        where  perm_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <insert id="insert" keyColumn="perm_id" keyProperty="permId" parameterType="com.tpp.threat_perception_platform.pojo.Permission" useGeneratedKeys="true">
+        insert into permission
+        ( perm_id,perm_name,perm_desc
+        ,create_time,update_time)
+        values (#{permId,jdbcType=INTEGER},#{permName,jdbcType=VARCHAR},#{permDesc,jdbcType=VARCHAR}
+        ,#{createTime,jdbcType=TIMESTAMP},#{updateTime,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertSelective" keyColumn="perm_id" keyProperty="permId" parameterType="com.tpp.threat_perception_platform.pojo.Permission" useGeneratedKeys="true">
+        insert into permission
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="permId != null">perm_id,</if>
+                <if test="permName != null">perm_name,</if>
+                <if test="permDesc != null">perm_desc,</if>
+                <if test="createTime != null">create_time,</if>
+                <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="permId != null">#{permId,jdbcType=INTEGER},</if>
+                <if test="permName != null">#{permName,jdbcType=VARCHAR},</if>
+                <if test="permDesc != null">#{permDesc,jdbcType=VARCHAR},</if>
+                <if test="createTime != null">#{createTime,jdbcType=TIMESTAMP},</if>
+                <if test="updateTime != null">#{updateTime,jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.tpp.threat_perception_platform.pojo.Permission">
+        update permission
+        <set>
+                <if test="permName != null">
+                    perm_name = #{permName,jdbcType=VARCHAR},
+                </if>
+                <if test="permDesc != null">
+                    perm_desc = #{permDesc,jdbcType=VARCHAR},
+                </if>
+                <if test="createTime != null">
+                    create_time = #{createTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="updateTime != null">
+                    update_time = #{updateTime,jdbcType=TIMESTAMP},
+                </if>
+        </set>
+        where   perm_id = #{permId,jdbcType=INTEGER} 
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.tpp.threat_perception_platform.pojo.Permission">
+        update permission
+        set 
+            perm_name =  #{permName,jdbcType=VARCHAR},
+            perm_desc =  #{permDesc,jdbcType=VARCHAR},
+            create_time =  #{createTime,jdbcType=TIMESTAMP},
+            update_time =  #{updateTime,jdbcType=TIMESTAMP}
+        where   perm_id = #{permId,jdbcType=INTEGER} 
+    </update>
+</mapper>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Password Strength</title>
+  <style>
+    /* 基本样式 */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    input {
+      display: block;
+      margin-bottom: 10px;
+      padding: 10px;
+      width: 300px;
+    }
+
+    #passwordStrength {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .indicator {
+      height: 10px;
+      width: 300px;
+      background-color: #e0e0e0;
+      border-radius: 5px;
+      overflow: hidden;
+      transition: background-color 0.3s;
+    }
+
+    /* 不同强度的样式 */
+    .indicator.weak {
+      background-color: #ff4d4d; /* 红色 */
+    }
+
+    .indicator.moderate {
+      background-color: #ffcc00; /* 黄色 */
+    }
+
+    .indicator.strong {
+      background-color: #66cc66; /* 绿色 */
+    }
+
+    .indicator.very-strong {
+      background-color: #3399ff; /* 蓝色 */
+    }
+  </style>
+</head>
+<body>
+<input type="password" id="LAY_password" placeholder="请输入密码">
+<div id="passwordStrength">弱</div>
+<div id="passwordStrengthIndicator" class="indicator"></div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  // 即时显示密码强度
+  $('#LAY_password').on('input', function () {
+    var value = $(this).val();
+    var strength = getPasswordStrength(value);
+    $('#passwordStrength').text(strength);
+    updatePasswordStrengthIndicator(strength);
+  });
+
+  // 密码强度计算函数
+  function getPasswordStrength(password) {
+    var strength = '弱';
+    if (password.length >= 6 && /[a-z]/.test(password) && /[A-Z]/.test(password) && /\d/.test(password) && /\W/.test(password)) {
+      strength = '很强';
+    } else if (password.length >= 6 && (/[a-z]/.test(password) || /[A-Z]/.test(password)) && /\d/.test(password)) {
+      strength = '强';
+    } else if (password.length >= 6) {
+      strength = '中';
+    }
+    return strength;
+  }
+
+  // 更新密码强度指示器样式
+  function updatePasswordStrengthIndicator(strength) {
+    var indicator = $('#passwordStrengthIndicator');
+    indicator.removeClass('weak moderate strong very-strong');
+    if (strength === '弱') {
+      indicator.addClass('weak');
+    } else if (strength === '中') {
+      indicator.addClass('moderate');
+    } else if (strength === '强') {
+      indicator.addClass('strong');
+    } else if (strength === '很强') {
+      indicator.addClass('very-strong');
+    }
+  }
+</script>
+</body>
+</html>

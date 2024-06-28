@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tpp.threat_perception_platform.dao.UserMapper">
+
+    <resultMap id="BaseResultMap" type="com.tpp.threat_perception_platform.pojo.User">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+            <result property="userPwd" column="user_pwd" jdbcType="CHAR"/>
+            <result property="userStatus" column="user_status" jdbcType="INTEGER"/>
+            <result property="userRole" column="user_role" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="lastLoginTime" column="last_login_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_name,user_pwd,
+        user_status,user_role,create_time,update_time,
+        last_login_time
+    </sql>
+    <sql id="Base_Column_List2">
+        id,user_name,
+        user_status,user_role,create_time,update_time,
+        last_login_time
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from user
+        where  id = #{id,jdbcType=INTEGER} 
+    </select>
+    <select id="selectByUserName" resultType="com.tpp.threat_perception_platform.pojo.User">
+        select
+        <include refid="Base_Column_List" />
+        from user
+        where user_name = #{userName,jdbcType=VARCHAR} limit 1
+    </select>
+    <!--查询所有-->
+    <select id="findAll" resultType="com.tpp.threat_perception_platform.pojo.User">
+        select
+        <include refid="Base_Column_List2" />
+        from user
+        <where>
+            <if test="param.keywords != null and param.keywords != ''">
+                and user_name like concat('%',#{param.keywords},'%')
+            </if>
+            <if test="param.id != 0 and param.id != null">
+                and id=#{param.id}
+            </if>
+            <if test="param.start != null and param.start != ''">
+                and last_login_time &gt;= #{param.start}
+            </if>
+            <if test="param.end != null and param.end != ''">
+                and last_login_time &lt;= #{param.end}
+            </if>
+        </where>
+        order by id desc
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from user
+        where  id = #{id,jdbcType=INTEGER} 
+    </delete>
+    <delete id="delete">
+        delete from user
+        where  id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.tpp.threat_perception_platform.pojo.User" useGeneratedKeys="true">
+        insert into user
+        ( id,user_name,user_pwd
+        ,user_status,user_role,create_time,update_time
+        ,last_login_time)
+        values (#{id,jdbcType=INTEGER},#{userName,jdbcType=VARCHAR},#{userPwd,jdbcType=CHAR}
+        ,#{userStauts,jdbcType=INTEGER},#{userRole,jdbcType=INTEGER},#{createTime,jdbcType=TIMESTAMP},#{updateTime,jdbcType=TIMESTAMP}
+        ,#{lastLoginTime,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.tpp.threat_perception_platform.pojo.User" useGeneratedKeys="true">
+        insert into user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="userName != null">user_name,</if>
+                <if test="userPwd != null">user_pwd,</if>
+                <if test="userStatus != null">user_status,</if>
+                <if test="userRole != null">user_role,</if>
+                <if test="createTime != null">create_time,</if>
+                <if test="updateTime != null">update_time,</if>
+                <if test="lastLoginTime != null">last_login_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id,jdbcType=INTEGER},</if>
+                <if test="userName != null">#{userName,jdbcType=VARCHAR},</if>
+                <if test="userPwd != null">#{userPwd,jdbcType=CHAR},</if>
+                <if test="userStatus != null">#{userStatus,jdbcType=INTEGER},</if>
+                <if test="userRole != null">#{userRole,jdbcType=INTEGER},</if>
+                <if test="createTime != null">#{createTime,jdbcType=TIMESTAMP},</if>
+                <if test="updateTime != null">#{updateTime,jdbcType=TIMESTAMP},</if>
+                <if test="lastLoginTime != null">#{lastLoginTime,jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.tpp.threat_perception_platform.pojo.User">
+        update user
+        <set>
+                <if test="userName != null">
+                    user_name = #{userName,jdbcType=VARCHAR},
+                </if>
+                <if test="userPwd != null">
+                    user_pwd = #{userPwd,jdbcType=CHAR},
+                </if>
+                <if test="userStatus != null">
+                    user_status = #{userStatus,jdbcType=INTEGER},
+                </if>
+                <if test="userRole != null">
+                    user_role = #{userRole,jdbcType=INTEGER},
+                </if>
+                <if test="createTime != null">
+                    create_time = #{createTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="updateTime != null">
+                    update_time = #{updateTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="lastLoginTime != null">
+                    last_login_time = #{lastLoginTime,jdbcType=TIMESTAMP},
+                </if>
+        </set>
+        where   id = #{id,jdbcType=INTEGER} 
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.tpp.threat_perception_platform.pojo.User">
+        update user
+        set 
+            user_name =  #{userName,jdbcType=VARCHAR},
+            user_pwd =  #{userPwd,jdbcType=CHAR},
+            user_status =  #{userStatus,jdbcType=INTEGER},
+            user_role =  #{userRole,jdbcType=INTEGER},
+            create_time =  #{createTime,jdbcType=TIMESTAMP},
+            update_time =  #{updateTime,jdbcType=TIMESTAMP},
+            last_login_time =  #{lastLoginTime,jdbcType=TIMESTAMP}
+        where   id = #{id,jdbcType=INTEGER} 
+    </update>
+</mapper>

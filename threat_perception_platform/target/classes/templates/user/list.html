@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>系统用户管理</title>
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="/layui/layuiAdmin/css/admin.css" media="all">
+</head>
+<body>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto" style="border-radius: 0;border-top: 4px solid #d2d2d2;">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">用户名</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="keywords" placeholder="请输入用户名" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-useradmin" lay-submit lay-filter="LAY-sysuser-front-search">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="layui-card-body">
+
+            <div style="padding-bottom: 10px;">
+                <button class="layui-btn layuiadmin-btn-useradmin" data-type="batchdel">删除</button>
+                <button class="layui-btn layuiadmin-btn-useradmin" data-type="add">添加</button>
+            </div>
+
+            <!--  表格数据加载 -->
+            <table id="LAY-user-manage" lay-filter="LAY-user-manage"></table>
+
+
+
+            <script type="text/html" id="table-useradmin-webuser">
+                <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+            </script>
+
+
+            <!--  创建时间格式化处理 -->
+            <script type="text/html" id="createTimeTpl">
+                {{formatDate(d.createTime)}}
+            </script>
+
+            <!--  更新时间格式化处理 -->
+            <script type="text/html" id="updateTimeTpl">
+                {{formatDate(d.updateTime)}}
+            </script>
+
+        </div>
+    </div>
+</div>
+
+<script src="/layui/layui.js"></script>
+<script type="text/javascript">
+    // 日期格式转换函数
+    function formatDate(str) {
+        if(str != null){
+            var now = new Date(str);
+            var year = now.getFullYear();  //取得4位数的年份
+            var month = now.getMonth() + 1;  //取得日期中的月份，其中0表示1月，11表示12月
+            var date = now.getDate();      //返回日期月份中的天数（1到31）
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            var seconds = now.getSeconds();
+            return year + "-" + month + "-" + date +" "+hours+":"+minutes+":"+seconds;
+        }
+        return "";
+    }
+</script>
+<script type="text/javascript">
+    layui.config({
+        base: '/layui/layuiAdmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['layer','table','form'], function(){
+        var $ = layui.$
+            ,form = layui.form
+            ,layer = layui.layer
+            ,table = layui.table;
+
+        //加载table
+        table.render({
+            elem: '#LAY-user-manage'
+            ,method: 'post'
+            ,url:'/user/list' //后端接口
+            ,headers: {
+                'Authorization': localStorage.getItem('token')
+            }
+            ,width: 'auto'// 自适应宽度
+            ,cellMinWidth: 80 //全局定义常规单元格的最小宽度
+            ,title: '系统用户数据表'
+            ,cols: [
+                [
+                {type: 'checkbox', fixed: 'left'}
+                ,{field:'id',title:'ID',width: 80}
+                ,{field:'userName', title:'用户名',width: 100}
+                ,{field:'userRole', title:'用户角色',width: 100}
+                ,{field:'userStatus', title:'状态',width: 80,templet:function (d){
+                    if(d.userStatus === 1){
+                        return "<button class='layui-btn layui-btn-normal layui-btn-xs'>正常</button>";
+                    }else if(d.userStatus === 2){
+                        return "<button class='layui-btn layui-btn-danger layui-btn-xs'>冻结</button>";
+                    }
+                }}
+                ,{field:'createTime', title:'创建时间',width: 160, templet:function (d){
+                    return formatDate(d.createTime);
+                }}
+                ,{field:'updateTime', title:'更新时间',width: 160, templet: function (d){
+                    return formatDate(d.updateTime);
+                }}
+                ,{field:'lastLoginTime', title:'最后登录时间',width: 160, templet:function (d){
+                    return formatDate(d.lastLoginTime);
+                }}
+                ,{fixed: 'right', title:'操作', toolbar: '#table-useradmin-webuser',width:180}
+            ]]
+            ,page: {
+                curr: 1 //设定初始在第 5 页
+                ,limit: 5 //设定初始每页显示 5 条
+            },
+            limits:[5,10,15,20]
+        });
+
+        //监听行工具事件: 单行删除和修改
+        table.on('tool(LAY-user-manage)', function(obj){
+            var data = obj.data;
+            if(obj.event === 'del'){
+                layer.confirm('真的删除吗?', function(index){
+                    $.ajax({
+                        url:"/user/delete", //请求后端接口地址
+                        type:"post", //请求方式get | post
+                        headers: {
+                            'Authorization': localStorage.getItem('token')
+                        },
+                        data:{ids:[data.id]}, //数据
+                        dataType:"json", //后端返回参数类型
+                        success:function (res){ //请求成功后回调函数res = JSONObject.toJSONString(resultMap)
+                            if(res.code == 0){//成功
+                                layer.msg(res.msg);//弹出提示
+                                table.reload('LAY-user-manage'); //数据刷新
+                                layer.close(index); //关闭弹层
+                            }else {
+                                layer.msg(res.msg,{icon: 5});//弹出提示
+                            }
+                        }
+                    })
+                });
+            } else if(obj.event === 'edit'){
+                layer.open({
+                    type: 2
+                    ,title: '修改用户'
+                    ,skin: 'layui-layer-molv'
+                    ,content: '/page/user/edit'
+                    ,maxmin: true
+                    ,area: ['480px', '310px']
+                    ,btn: ['确定', '取消']
+                    ,success: function (layero,index){ //弹出层加载之前执行
+                        // 获取选中行的数据
+                        // 获取弹出层的表单
+                        var body = layer.getChildFrame("body",index);
+                        var contentWindow = layero.find('iframe')[0].contentWindow;//得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+                        // 获取编辑表单中用户名元素
+                        // 数据回显到弹出的表单中
+                        contentWindow.layui.form.val('layuiadmin-form-useradmin', {
+                            "id": data.id
+                            ,"userName": data.userName
+                            ,"userRole": data.userRole
+                            ,"userStatus": data.userStatus
+                        });
+
+                    }
+                    ,yes: function (index,layero){
+                        var iframeWindow = window['layui-layer-iframe'+ index]
+                            ,submitID = 'LAY-user-front-submit'
+                            ,submit = layero.find('iframe').contents().find('#'+ submitID);
+                        //监听提交--隐藏按钮
+                        iframeWindow.layui.form.on('submit('+ submitID +')', function(data){
+                            var field = data.field; //获取提交的字段
+                            // 通过Ajax方式将参数提交到后端--保存数据库中
+                            $.ajax({
+                                url:"/user/edit",
+                                type:"post",
+                                headers: {
+                                    'Authorization': localStorage.getItem('token')
+                                },
+                                data:JSON.stringify(field),
+                                contentType: "application/json;charset=utf-8", //提交参数类型为json格式
+                                dataType:"json",
+                                success:function (res){
+                                    if(res.code == 0){//成功
+                                        layer.msg(res.msg);//弹出提示
+                                        table.reload('LAY-user-manage'); //数据刷新
+                                        layer.close(index); //关闭弹层
+                                    }else{//系统出问题
+                                        layer.msg(res.msg,{icon: 5});//弹出提示
+                                    }
+                                }
+                            })
+                        });
+                        submit.trigger('click');
+                    }
+
+                });
+            }
+        });
+
+        //监听搜索
+        form.on('submit(LAY-sysuser-front-search)', function(data){
+            var field = data.field;
+            //执行重载
+            table.reload('LAY-user-manage', {
+                url: '/user/list',
+                method: "post",
+                headers: {
+                    'Authorization': localStorage.getItem('token')
+                },
+                where: field
+            });
+        });
+
+        //事件 批量删除，添加用户
+        var active = {
+            batchdel: function(){
+                var checkStatus = table.checkStatus('LAY-user-manage')
+                    ,checkData = checkStatus.data; //得到选中的数据
+
+                if(checkData.length == 0){
+                    return layer.msg('请选择数据');
+                }
+
+                // 程序走到这里，表示已经有选中要删除的数据了。
+                layer.confirm('确定删除吗？',function (){
+                    var userIds = new Array();
+                    $.each(checkData,function (index,item){
+                           userIds.push(item.id);
+                    })
+                    // 提交给后端
+                    $.ajax({
+                        url:"/user/delete",
+                        type:"post",
+                        headers: {
+                            'Authorization': localStorage.getItem('token')
+                        },
+                        data:{ids:userIds},
+                        dataType:"json",
+                        success:function (res){
+                            if(res.code == 0){//成功
+                                layer.msg(res.msg);
+                                table.reload('LAY-user-manage'); //数据刷新
+                                layer.close(index); //关闭弹层
+                            }else{
+                                layer.msg(res.msg,{icon: 5});//弹出提示
+                            }
+                        }
+                    })
+                })
+            }
+            ,add: function(){
+                layer.open({
+                    type: 2
+                    ,title: '添加用户'
+                    ,skin: 'layui-layer-molv'
+                    ,content: '/page/user/add'
+                    ,maxmin: true
+                    ,area: ['580px', '350px']
+                    ,btn: ['确定', '取消']
+                    ,yes: function (index,layero){
+                        var iframeWindow = window['layui-layer-iframe'+ index]
+                            ,submitID = 'LAY-user-front-submit'
+                            ,submit = layero.find('iframe').contents().find('#'+ submitID);
+                            //监听提交--隐藏按钮
+                            iframeWindow.layui.form.on('submit('+ submitID +')', function(data){
+                                var field = data.field; //获取提交的字段
+                                // 通过Ajax方式将参数提交到后端--保存数据库中
+                                $.ajax({
+                                    url:"/user/save",
+                                    type:"post",
+                                    headers: {
+                                        'Authorization': localStorage.getItem('token')
+                                    },
+                                    data:JSON.stringify(field),
+                                    contentType: "application/json;charset=utf-8", //提交参数类型为json格式
+                                    dataType:"json",
+                                    success:function (res){
+                                        if(res.code === 0){//成功
+                                            layer.msg(res.msg);//弹出提示
+                                            table.reload('LAY-user-manage'); //数据刷新
+                                            layer.close(index); //关闭弹层
+                                        }else{//系统出问题
+                                            layer.msg(res.msg,{icon: 5});//弹出提示
+                                        }
+                                    }
+                                })
+                            });
+                            submit.trigger('click');
+                    }
+
+                });
+            }
+        };
+
+        $('.layui-btn.layuiadmin-btn-useradmin').on('click', function(){
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+    });
+</script>
+</body>
+</html>

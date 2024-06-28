@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>编辑用户</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="/layui/layuiAdmin/css/admin.css" media="all">
+    <style>
+        .st{
+            width: 270px!important;
+        }
+        .layui-form-label{
+            width: 120px!important;
+        }
+        .xinghao{
+            color: red!important;
+        }
+    </style>
+</head>
+<body>
+
+<!--表单-->
+<div class="layui-form" lay-filter="layuiadmin-form-useradmin" id="layuiadmin-form-useradmin" style="padding: 20px 0 0 0;">
+    <input type="hidden" name="id">
+    <!--  用户名  -->
+    <div class="layui-form-item">
+        <label class="layui-form-label">用户名<span class="xinghao">*</span></label>
+        <div class="layui-input-inline st">
+            <input type="text" name="userName" readonly lay-verify="required|username" placeholder="请输入用户名" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <!--  用户角色  -->
+    <div class="layui-form-item">
+        <label class="layui-form-label">角色<span class="xinghao">*</span></label>
+        <div class="layui-input-inline st">
+            <input type="text" name="userRole" readonly lay-verify="required" placeholder="请输入用户角色" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+
+    <!--  状态 -->
+    <div class="layui-form-item">
+        <label class="layui-form-label">状态</label>
+        <div class="layui-input-block">
+            <input type="radio" name="userStatus" value="1" title="正常" checked="">
+            <input type="radio" name="userStatus" value="2" title="冻结">
+        </div>
+    </div>
+
+    <!--  提交 -->
+    <div class="layui-form-item layui-hide">
+        <input type="button" lay-submit lay-filter="LAY-user-front-submit" id="LAY-user-front-submit" value="确认">
+    </div>
+</div>
+
+<script src="/layui/layui.js"></script>
+<script>
+    layui.config({
+        base: '/layui/layuiAdmin/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use(['index', 'layer', 'form','layedit','laydate'], function(){
+        var $ = layui.$
+            ,form = layui.form
+            ,layer = layui.layer
+            ,laydate = layui.laydate
+            ,layedit = layui.layedit;
+
+        //常规用法
+        laydate.render({
+            elem: '#hiredate'
+        });
+
+        //创建一个编辑器
+        var editIndex = layedit.build('LAY_demo_editor');
+        //自定义验证规则
+        form.verify({
+            username: function(value){
+                // 限制用户名是3~16字符
+                var reg = /^[a-zA-Z][a-zA-Z0-9_]{2,15}$/;
+                if(!reg.test(value)){
+                    return '字母开头，允许3-16字符，允许字母数字下划线';
+                }
+            },
+            mobile: function(value){
+                // 限制手机号码
+                var reg = /^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|17[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9]|19[0|1|2|3|5|6|7|8|9])\d{8}$/;
+                if(!reg.test(value)){
+                    return '手机号码格式不正确';
+                }
+            },
+            password: function(value){
+                // 以字母开头，长度在6~18之间，只能包含字母、数字和下划线
+                var reg = /^[a-zA-Z]\w{5,17}$/;
+                if(!reg.test(value)){
+                    return '以字母开头，长度在6~18之间，只能包含字母、数字和下划线';
+                }
+            }
+            ,content: function(value){
+                layedit.sync(editIndex);
+            }
+        });
+
+    })
+</script>
+</body>
+</html>

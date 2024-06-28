@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tpp.threat_perception_platform.dao.WeakPwdMapper">
+
+    <resultMap id="BaseResultMap" type="com.tpp.threat_perception_platform.pojo.WeakPwd">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="mac" column="mac" jdbcType="VARCHAR"/>
+            <result property="accountName" column="account_name" jdbcType="VARCHAR"/>
+            <result property="weakPwd" column="weak_pwd" jdbcType="VARCHAR"/>
+            <result property="time" column="time" jdbcType="TIMESTAMP"/>
+            <result property="taskSender" column="task_sender" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,mac,account_name,
+        weak_pwd,time,task_sender
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from weak_pwd
+        where  id = #{id,jdbcType=INTEGER} 
+    </select>
+    <select id="selectAll" resultType="com.tpp.threat_perception_platform.pojo.WeakPwd">
+        select
+        <include refid="Base_Column_List" />
+        from weak_pwd
+        <where>
+            <if test="keywords != null">
+                and mac = #{keywords,jdbcType=VARCHAR}
+            </if>
+        </where>
+        order by id asc
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from weak_pwd
+        where  id = #{id,jdbcType=INTEGER} 
+    </delete>
+    <delete id="deleteByMac">
+        delete from weak_pwd
+        where  mac = #{mac,jdbcType=VARCHAR}
+    </delete>
+    <delete id="delete">
+        delete from weak_pwd
+        where  id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id,jdbcType=INTEGER}
+        </foreach>
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.tpp.threat_perception_platform.pojo.WeakPwd" useGeneratedKeys="true">
+        insert into weak_pwd
+        ( id,mac,account_name
+        ,weak_pwd,time,task_sender
+        )
+        values (#{id,jdbcType=INTEGER},#{mac,jdbcType=VARCHAR},#{accountName,jdbcType=VARCHAR}
+        ,#{weakPwd,jdbcType=VARCHAR},#{time,jdbcType=TIMESTAMP},#{taskSender,jdbcType=VARCHAR}
+        )
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.tpp.threat_perception_platform.pojo.WeakPwd" useGeneratedKeys="true">
+        insert into weak_pwd
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="mac != null">mac,</if>
+                <if test="accountName != null">account_name,</if>
+                <if test="weakPwd != null">weak_pwd,</if>
+                <if test="time != null">time,</if>
+                <if test="taskSender != null">task_sender,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id,jdbcType=INTEGER},</if>
+                <if test="mac != null">#{mac,jdbcType=VARCHAR},</if>
+                <if test="accountName != null">#{accountName,jdbcType=VARCHAR},</if>
+                <if test="weakPwd != null">#{weakPwd,jdbcType=VARCHAR},</if>
+                <if test="time != null">#{time,jdbcType=TIMESTAMP},</if>
+                <if test="taskSender != null">#{taskSender,jdbcType=VARCHAR},</if>
+        </trim>
+    </insert>
+    <insert id="insertBatch">
+        insert into weak_pwd
+        values
+        <trim suffixOverrides=",">
+            <foreach collection="weakPwds" item="weakPwd" separator=",">
+                (
+                #{weakPwd.id,jdbcType=INTEGER},
+                #{weakPwd.mac,jdbcType=VARCHAR},
+                #{weakPwd.accountName,jdbcType=VARCHAR},
+                #{weakPwd.weakPwd,jdbcType=VARCHAR},
+                #{weakPwd.time,jdbcType=TIMESTAMP},
+                #{weakPwd.taskSender,jdbcType=VARCHAR}
+                )
+            </foreach>
+        </trim>
+
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.tpp.threat_perception_platform.pojo.WeakPwd">
+        update weak_pwd
+        <set>
+                <if test="mac != null">
+                    mac = #{mac,jdbcType=VARCHAR},
+                </if>
+                <if test="accountName != null">
+                    account_name = #{accountName,jdbcType=VARCHAR},
+                </if>
+                <if test="weakPwd != null">
+                    weak_pwd = #{weakPwd,jdbcType=VARCHAR},
+                </if>
+                <if test="time != null">
+                    time = #{time,jdbcType=TIMESTAMP},
+                </if>
+                <if test="taskSender != null">
+                    task_sender = #{taskSender,jdbcType=VARCHAR},
+                </if>
+        </set>
+        where   id = #{id,jdbcType=INTEGER} 
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.tpp.threat_perception_platform.pojo.WeakPwd">
+        update weak_pwd
+        set 
+            mac =  #{mac,jdbcType=VARCHAR},
+            account_name =  #{accountName,jdbcType=VARCHAR},
+            weak_pwd =  #{weakPwd,jdbcType=VARCHAR},
+            time =  #{time,jdbcType=TIMESTAMP},
+            task_sender =  #{taskSender,jdbcType=VARCHAR}
+        where   id = #{id,jdbcType=INTEGER} 
+    </update>
+</mapper>
